@@ -2,6 +2,7 @@ package com.desafio.reservas.services;
 
 import com.desafio.reservas.dtos.*;
 import com.desafio.reservas.exceptions.FlightException;
+import com.desafio.reservas.models.Flight;
 import com.desafio.reservas.repositories.FlightRepository;
 import com.desafio.reservas.utilities.Util;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,32 @@ public class FlightServiceImple implements FlightService {
         this.util = new Util();
     }
 
+    // adds a new flight to the system
+    public void addNewFlight(FlightDTO flightDTO) throws FlightException {
+        Flight f = new Flight();
+        f.setFlightNumber(flightDTO.getFlightNumber());
+        f.setDestination(flightDTO.getDestination());
+        f.setOrigin(flightDTO.getOrigin());
+        f.setSeatType(flightDTO.getSeatType());
+        f.setSeatPrice(flightDTO.getSeatPrice());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate dateFromLocal = null;
+        LocalDate dateToLocal = null;
+        try {
+            dateFromLocal = LocalDate.parse(flightDTO.getDateFrom(), formatter);
+        } catch (DateTimeParseException e) {
+            throw new FlightException("DateFrom is not valid");
+        }
+        try {
+            dateToLocal = LocalDate.parse(flightDTO.getDateTo(), formatter);
+        } catch (DateTimeParseException e) {
+            throw new FlightException("DateTo is not valid");
+        }
+        f.setDateFrom(dateFromLocal);
+        f.setDateTo(dateToLocal);
+        repository.save(f);
+    }
+
     // returns available flights according user input
     @Override
     public List<FlightFormatDTO> listFlightsAvailable(Map<String, String> params) throws FlightException {
@@ -35,7 +62,7 @@ public class FlightServiceImple implements FlightService {
         String origin = params.containsKey("origin") ? params.get("origin") : "";
         String destination = params.containsKey("destination") ? params.get("destination") : "";
         validateParameters(dateFrom, dateTo, origin, destination);
-        List<FlightDTO> flights = repository.loadFlights("src/main/resources/flightsDB.csv");
+        List<Flight> flights = repository.findAll();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         // show flights between 3 days before and 3 days after the exact date required
         if (!dateFrom.isEmpty()) {
@@ -62,9 +89,9 @@ public class FlightServiceImple implements FlightService {
     }
 
     // formats LocalDate and boolean fields to String
-    public List<FlightFormatDTO> formatFlightList(List<FlightDTO> flights) {
+    public List<FlightFormatDTO> formatFlightList(List<Flight> flights) {
         List<FlightFormatDTO> response = new ArrayList<>();
-        for(FlightDTO f : flights) {
+        for (Flight f : flights) {
             FlightFormatDTO flightFormatDTO = new FlightFormatDTO();
             flightFormatDTO.setFlightNumber(f.getFlightNumber());
             flightFormatDTO.setOrigin(f.getOrigin());
@@ -81,7 +108,7 @@ public class FlightServiceImple implements FlightService {
 
     // validates user input
     public void validateParameters(String dateFrom, String dateTo, String origin, String destination) throws FlightException {
-        List<FlightDTO> flights = repository.loadFlights("src/main/resources/flightsDB.csv");
+        List<Flight> flights = repository.findAll();
         // validate dates
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate dateFromLocal = null;
@@ -107,7 +134,7 @@ public class FlightServiceImple implements FlightService {
         }
         if (dateFromLocal != null) {
             LocalDate auxDate = LocalDate.parse(dateFrom, formatter);
-            List<FlightDTO> dateFromList = flights.stream()
+            List<Flight> dateFromList = flights.stream()
                     .filter(f -> f.getDateFrom().isBefore(auxDate.plusDays(3)))
                     .filter(f -> f.getDateFrom().isAfter(auxDate.minusDays(3)))
                     .collect(Collectors.toList());
@@ -117,7 +144,7 @@ public class FlightServiceImple implements FlightService {
         }
         if (dateToLocal != null) {
             LocalDate auxDate = LocalDate.parse(dateTo, formatter);
-            List<FlightDTO> dateToList = flights.stream()
+            List<Flight> dateToList = flights.stream()
                     .filter(f -> f.getDateTo().isBefore(auxDate.plusDays(3)))
                     .filter(f -> f.getDateTo().isAfter(auxDate.minusDays(3)))
                     .collect(Collectors.toList());
@@ -127,7 +154,7 @@ public class FlightServiceImple implements FlightService {
         }
         // validates origin (only if it exists)
         if (!origin.isEmpty()) {
-            List<FlightDTO> originList = flights.stream()
+            List<Flight> originList = flights.stream()
                     .filter(f -> f.getOrigin().equalsIgnoreCase(origin))
                     .collect(Collectors.toList());
             if (originList.isEmpty()) {
@@ -136,7 +163,7 @@ public class FlightServiceImple implements FlightService {
         }
         // validates destination (only if it exists)
         if (!destination.isEmpty()) {
-            List<FlightDTO> destinationList = flights.stream()
+            List<Flight> destinationList = flights.stream()
                     .filter(f -> f.getDestination().equalsIgnoreCase(destination))
                     .collect(Collectors.toList());
             if (destinationList.isEmpty()) {
@@ -153,12 +180,12 @@ public class FlightServiceImple implements FlightService {
 
     // verifies whether the payload is valid or not
     public void verifyReservation(PayloadFlightDTO payload) throws FlightException {
-        List<FlightDTO> flights = repository.loadFlights("src/main/resources/flightsDB.csv");
+        List<Flight> flights = repository.findAll();
         flights.removeIf(f -> !f.getFlightNumber().equalsIgnoreCase(payload.getFlightReservation().getFlightNumber()));
         if (flights.isEmpty()) {
             throw new FlightException("The flight number is not valid");
         }
-        FlightDTO flightData = flights.get(0);
+        Flight flightData = flights.get(0);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         if (!util.validateDates(payload.getFlightReservation().getDateFrom(), payload.getFlightReservation().getDateTo())) {
             throw new FlightException("Dates are not valid.");
@@ -205,13 +232,13 @@ public class FlightServiceImple implements FlightService {
         BigDecimal bdTotal = new BigDecimal(total).setScale(2, RoundingMode.HALF_UP);
         response.setTotal(bdTotal.doubleValue());
         response.setFlightReservation(getFlightReservationResponse(payload.getFlightReservation()));
-        response.setStatusCode(new StatusDTO(200, "El proceso termino satisfactoriamente"));
+        response.setStatusCode(new StatusDTO(200, "Process has been successful"));
         return response;
     }
 
     // calculates the amount to pay according to amount of tickets and the price per ticket
     public double calculateAmount(FlightReservationDTO reservation) {
-        List<FlightDTO> flights = repository.loadFlights("src/main/resources/flightsDB.csv");
+        List<Flight> flights = repository.findAll();
         flights.removeIf(f -> !f.getFlightNumber().equalsIgnoreCase(reservation.getFlightNumber()));
         return flights.get(0).getSeatPrice() * reservation.getSeats();
     }

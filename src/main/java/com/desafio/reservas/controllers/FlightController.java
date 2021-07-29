@@ -1,8 +1,11 @@
 package com.desafio.reservas.controllers;
 
+import com.desafio.reservas.dtos.FlightDTO;
+import com.desafio.reservas.dtos.HotelDTO;
 import com.desafio.reservas.dtos.PayloadFlightDTO;
 import com.desafio.reservas.dtos.StatusDTO;
 import com.desafio.reservas.exceptions.FlightException;
+import com.desafio.reservas.exceptions.HotelException;
 import com.desafio.reservas.services.FlightService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +25,12 @@ public class FlightController {
     @GetMapping("/flights")
     public ResponseEntity listFlights(@RequestParam(required = false) Map<String, String> params) throws FlightException {
         return new ResponseEntity(service.listFlightsAvailable(params), HttpStatus.OK);
+    }
+
+    @PostMapping("/flight")
+    public ResponseEntity addFlight(@RequestBody FlightDTO flightDTO) throws FlightException {
+        service.addNewFlight(flightDTO);
+        return new ResponseEntity(new StatusDTO(201, "The new flight has been added!"), HttpStatus.CREATED);
     }
 
     @PostMapping("/flight-reservation")

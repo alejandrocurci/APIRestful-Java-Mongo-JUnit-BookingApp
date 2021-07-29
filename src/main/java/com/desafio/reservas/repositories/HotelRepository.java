@@ -1,14 +1,10 @@
 package com.desafio.reservas.repositories;
 
-import com.desafio.reservas.dtos.HotelDTO;
-import com.desafio.reservas.exceptions.HotelException;
+import com.desafio.reservas.models.Hotel;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-public interface HotelRepository {
-
-    public List<HotelDTO> loadHotels(String path);
-
-    public void saveReservation(List<HotelDTO> data, String path) throws HotelException;
+@Repository
+public interface HotelRepository extends MongoRepository<Hotel, String> {
 
 }

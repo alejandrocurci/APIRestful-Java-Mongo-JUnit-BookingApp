@@ -1,7 +1,7 @@
 package com.desafio.reservas.fixtures;
 
-import com.desafio.reservas.dtos.HotelDTO;
 import com.desafio.reservas.dtos.HotelFormatDTO;
+import com.desafio.reservas.models.Hotel;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,8 +17,8 @@ public class HotelDTOFixture {
         return hotels;
     }
 
-    public static List<HotelDTO> defaultHotels() {
-        List<HotelDTO> hotels = new ArrayList<>();
+    public static List<Hotel> defaultHotels() {
+        List<Hotel> hotels = new ArrayList<>();
         hotels.add(HotelDTOFixture.defaultHotel1());
         hotels.add(HotelDTOFixture.defaultHotel2());
         hotels.add(HotelDTOFixture.defaultHotel3());
@@ -39,8 +39,8 @@ public class HotelDTOFixture {
         return hotel;
     }
 
-    public static HotelDTO defaultHotel4() {
-        HotelDTO hotel = new HotelDTO();
+    public static Hotel defaultHotel4() {
+        Hotel hotel = new Hotel();
         hotel.setHotelCode("HB-0001");
         hotel.setName("Hotel Bristol");
         hotel.setCity("Buenos Aires");
@@ -65,8 +65,8 @@ public class HotelDTOFixture {
         return hotel;
     }
 
-    public static HotelDTO defaultHotel3() {
-        HotelDTO hotel = new HotelDTO();
+    public static Hotel defaultHotel3() {
+        Hotel hotel = new Hotel();
         hotel.setHotelCode("SH-0001");
         hotel.setName("Sheraton 2");
         hotel.setCity("Tucumán");
@@ -91,8 +91,8 @@ public class HotelDTOFixture {
         return hotel;
     }
 
-    public static HotelDTO defaultHotel2() {
-        HotelDTO hotel = new HotelDTO();
+    public static Hotel defaultHotel2() {
+        Hotel hotel = new Hotel();
         hotel.setHotelCode("BG-0004");
         hotel.setName("Bocagrande");
         hotel.setCity("Cartagena");
@@ -117,8 +117,8 @@ public class HotelDTOFixture {
         return hotel;
     }
 
-    public static HotelDTO defaultHotel1() {
-        HotelDTO hotel = new HotelDTO();
+    public static Hotel defaultHotel1() {
+        Hotel hotel = new Hotel();
         hotel.setHotelCode("CH-0002");
         hotel.setName("Cataratas Hotel");
         hotel.setCity("Puerto Iguazú");

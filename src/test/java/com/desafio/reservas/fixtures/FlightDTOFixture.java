@@ -1,7 +1,7 @@
 package com.desafio.reservas.fixtures;
 
-import com.desafio.reservas.dtos.FlightDTO;
 import com.desafio.reservas.dtos.FlightFormatDTO;
+import com.desafio.reservas.models.Flight;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,8 +18,8 @@ public class FlightDTOFixture {
         return flights;
     }
 
-    public static List<FlightDTO> defaultFlights() {
-        List<FlightDTO> flights = new ArrayList<>();
+    public static List<Flight> defaultFlights() {
+        List<Flight> flights = new ArrayList<>();
         flights.add(FlightDTOFixture.defaultFlight1());
         flights.add(FlightDTOFixture.defaultFlight2());
         flights.add(FlightDTOFixture.defaultFlight3());
@@ -39,8 +39,8 @@ public class FlightDTOFixture {
         return flight;
     }
 
-    private static FlightDTO defaultFlight4() {
-        FlightDTO flight = new FlightDTO();
+    private static Flight defaultFlight4() {
+        Flight flight = new Flight();
         flight.setFlightNumber("CAME-0321");
         flight.setOrigin("Cartagena");
         flight.setDestination("Medellín");
@@ -63,8 +63,8 @@ public class FlightDTOFixture {
         return flight;
     }
 
-    private static FlightDTO defaultFlight3() {
-        FlightDTO flight = new FlightDTO();
+    private static Flight defaultFlight3() {
+        Flight flight = new Flight();
         flight.setFlightNumber("PIBA-1428");
         flight.setOrigin("Puerto Iguazú");
         flight.setDestination("Bogotá");
@@ -87,8 +87,8 @@ public class FlightDTOFixture {
         return flight;
     }
 
-    private static FlightDTO defaultFlight2() {
-        FlightDTO flight = new FlightDTO();
+    private static Flight defaultFlight2() {
+        Flight flight = new Flight();
         flight.setFlightNumber("TUPI-3369");
         flight.setOrigin("Tucumán");
         flight.setDestination("Puerto Iguazú");
@@ -111,8 +111,8 @@ public class FlightDTOFixture {
         return flight;
     }
 
-    private static FlightDTO defaultFlight1() {
-        FlightDTO flight = new FlightDTO();
+    private static Flight defaultFlight1() {
+        Flight flight = new Flight();
         flight.setFlightNumber("BOBA-6567");
         flight.setOrigin("Bogotá");
         flight.setDestination("Buenos Aires");

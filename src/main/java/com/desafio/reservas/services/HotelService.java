@@ -11,6 +11,8 @@ import java.util.Map;
 
 public interface HotelService {
 
+    public void addNewHotel(HotelDTO hotelDTO) throws HotelException;
+
     public List<HotelFormatDTO> listHotelsAvailable(Map<String, String> params) throws HotelException;
 
     public ResponseHotelDTO performBooking(PayloadHotelDTO payload) throws HotelException;

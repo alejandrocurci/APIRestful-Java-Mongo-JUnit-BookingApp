@@ -12,7 +12,7 @@ public class ResponseHotelDTOFixture {
         response.setInterest(10);
         response.setTotal(59785);
         response.setBooking(BookingDTOFixture.defaultBookingResponseDTO());
-        response.setStatusCode(new StatusDTO(200, "El proceso termino satisfactoriamente"));
+        response.setStatusCode(new StatusDTO(200, "Process has been successful"));
         return response;
     }
 }

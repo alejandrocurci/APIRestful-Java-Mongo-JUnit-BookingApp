@@ -2,6 +2,7 @@ package com.desafio.reservas.services;
 
 import com.desafio.reservas.dtos.*;
 import com.desafio.reservas.exceptions.HotelException;
+import com.desafio.reservas.models.Hotel;
 import com.desafio.reservas.repositories.HotelRepository;
 import com.desafio.reservas.utilities.Util;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,34 @@ public class HotelServiceImple implements HotelService {
         this.util = new Util();
     }
 
+    // adds a new hotel to the system
+    @Override
+    public void addNewHotel(HotelDTO hotelDTO) throws HotelException {
+        Hotel hotel = new Hotel();
+        hotel.setHotelCode(hotelDTO.getHotelCode());
+        hotel.setCity(hotelDTO.getCity());
+        hotel.setPrice(hotelDTO.getPrice());
+        hotel.setName(hotelDTO.getName());
+        hotel.setReserved(false);
+        hotel.setRoomType(hotelDTO.getRoomType());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate dateFromLocal = null;
+        LocalDate dateToLocal = null;
+        try {
+            dateFromLocal = LocalDate.parse(hotelDTO.getAvailableFrom(), formatter);
+        } catch (DateTimeParseException e) {
+            throw new HotelException("DateFrom is not valid");
+        }
+        try {
+            dateToLocal = LocalDate.parse(hotelDTO.getAvailableTo(), formatter);
+        } catch (DateTimeParseException e) {
+            throw new HotelException("DateTo is not valid");
+        }
+        hotel.setAvailableFrom(dateFromLocal);
+        hotel.setAvailableTo(dateToLocal);
+        repository.save(hotel);
+    }
+
     // returns available hotels according to the filters
     @Override
     public List<HotelFormatDTO> listHotelsAvailable(Map<String, String> params) throws HotelException {
@@ -35,7 +64,7 @@ public class HotelServiceImple implements HotelService {
         String dateTo = params.containsKey("dateTo") ? params.get("dateTo") : "";
         String destination = params.containsKey("destination") ? params.get("destination") : "";
         validateParameters(dateFrom, dateTo, destination);
-        List<HotelDTO> hotels = repository.loadHotels("src/main/resources/hotelsDB.csv");
+        List<Hotel> hotels = repository.findAll();
         hotels.removeIf(h -> h.isReserved());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         if (!dateFrom.isEmpty()) {
@@ -54,9 +83,9 @@ public class HotelServiceImple implements HotelService {
     }
 
     // formats LocalDate and boolean fields to String
-    public List<HotelFormatDTO> formatHotelList(List<HotelDTO> hotels) {
+    public List<HotelFormatDTO> formatHotelList(List<Hotel> hotels) {
         List<HotelFormatDTO> response = new ArrayList<>();
-        for(HotelDTO h : hotels) {
+        for (Hotel h : hotels) {
             HotelFormatDTO hotelFormatDTO = new HotelFormatDTO();
             hotelFormatDTO.setHotelCode(h.getHotelCode());
             hotelFormatDTO.setName(h.getName());
@@ -66,7 +95,7 @@ public class HotelServiceImple implements HotelService {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             hotelFormatDTO.setAvailableFrom(h.getAvailableFrom().format(formatter));
             hotelFormatDTO.setAvailableTo(h.getAvailableTo().format(formatter));
-            if(h.isReserved()) {
+            if (h.isReserved()) {
                 hotelFormatDTO.setReserved("Yes");
             } else {
                 hotelFormatDTO.setReserved("No");
@@ -78,7 +107,7 @@ public class HotelServiceImple implements HotelService {
 
     // validates user input
     public void validateParameters(String dateFrom, String dateTo, String destination) throws HotelException {
-        List<HotelDTO> hotels = repository.loadHotels("src/main/resources/hotelsDB.csv");
+        List<Hotel> hotels = repository.findAll();
         hotels.removeIf(h -> h.isReserved());
         // validate dates
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -105,7 +134,7 @@ public class HotelServiceImple implements HotelService {
         }
         if (dateFromLocal != null) {
             LocalDate auxDate = LocalDate.parse(dateFrom, formatter);
-            List<HotelDTO> dateFromList = hotels.stream()
+            List<Hotel> dateFromList = hotels.stream()
                     .filter(h -> h.getAvailableFrom().isAfter(auxDate))
                     .collect(Collectors.toList());
             if (dateFromList.isEmpty()) {
@@ -114,7 +143,7 @@ public class HotelServiceImple implements HotelService {
         }
         if (dateToLocal != null) {
             LocalDate auxDate = LocalDate.parse(dateTo, formatter);
-            List<HotelDTO> dateToList = hotels.stream()
+            List<Hotel> dateToList = hotels.stream()
                     .filter(h -> h.getAvailableTo().isBefore(auxDate))
                     .collect(Collectors.toList());
             if (dateToList.isEmpty()) {
@@ -123,7 +152,7 @@ public class HotelServiceImple implements HotelService {
         }
         // validates destination (only if it exists)
         if (!destination.isEmpty()) {
-            List<HotelDTO> destinationList = hotels.stream()
+            List<Hotel> destinationList = hotels.stream()
                     .filter(h -> h.getCity().equalsIgnoreCase(destination))
                     .collect(Collectors.toList());
             if (destinationList.isEmpty()) {
@@ -140,12 +169,12 @@ public class HotelServiceImple implements HotelService {
 
     // verifies whether the payload is valid or not
     public void verifyBooking(PayloadHotelDTO payload) throws HotelException {
-        List<HotelDTO> hotels = repository.loadHotels("src/main/resources/hotelsDB.csv");
+        List<Hotel> hotels = repository.findAll();
         hotels.removeIf(h -> !h.getHotelCode().equalsIgnoreCase(payload.getBooking().getHotelCode()));
         if (hotels.isEmpty()) {
             throw new HotelException("The code hotel is not valid");
         }
-        HotelDTO hotelData = hotels.get(0);
+        Hotel hotelData = hotels.get(0);
         if (hotelData.isReserved()) {
             throw new HotelException("The hotel is already reserved");
         }
@@ -205,20 +234,20 @@ public class HotelServiceImple implements HotelService {
         BigDecimal bdTotal = new BigDecimal(total).setScale(2, RoundingMode.HALF_UP);
         response.setTotal(bdTotal.doubleValue());
         response.setBooking(getBookingResponse(payload.getBooking()));
-        response.setStatusCode(new StatusDTO(200, "El proceso termino satisfactoriamente"));
+        response.setStatusCode(new StatusDTO(200, "Process has been successful"));
         persistHotelReservation(response.getBooking().getHotelCode());
         return response;
     }
 
-    // updates csv file with the new reservation
+    // updates the reservation status hotel
     public void persistHotelReservation(String hotelCode) throws HotelException {
-        List<HotelDTO> hotels = repository.loadHotels("src/main/resources/hotelsDB.csv");
-        for(HotelDTO h : hotels) {
-            if(h.getHotelCode().equals(hotelCode)) {
+        List<Hotel> hotels = repository.findAll();
+        for (Hotel h : hotels) {
+            if (h.getHotelCode().equals(hotelCode)) {
                 h.setReserved(true);
+                repository.save(h);
             }
         }
-        repository.saveReservation(hotels, "src/main/resources/hotelsDB.csv");
     }
 
     // calculates the amount to pay according to amount of nights and the price per night
@@ -227,7 +256,7 @@ public class HotelServiceImple implements HotelService {
         LocalDate dateFrom = LocalDate.parse(booking.getDateFrom(), formatter);
         LocalDate dateTo = LocalDate.parse(booking.getDateTo(), formatter);
         int nightsReserved = Period.between(dateFrom, dateTo).getDays();
-        List<HotelDTO> hotels = repository.loadHotels("src/main/resources/hotelsDB.csv");
+        List<Hotel> hotels = repository.findAll();
         hotels.removeIf(h -> !h.getHotelCode().equalsIgnoreCase(booking.getHotelCode()));
         double price = hotels.get(0).getPrice();
         return nightsReserved * price;

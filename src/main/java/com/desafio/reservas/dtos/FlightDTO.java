@@ -2,8 +2,6 @@ package com.desafio.reservas.dtos;
 
 import lombok.Data;
 
-import java.time.LocalDate;
-
 @Data
 public class FlightDTO {
     private String flightNumber;
@@ -11,6 +9,6 @@ public class FlightDTO {
     private String destination;
     private String seatType;
     private double seatPrice;
-    private LocalDate dateFrom;
-    private LocalDate dateTo;
+    private String dateFrom;
+    private String dateTo;
 }

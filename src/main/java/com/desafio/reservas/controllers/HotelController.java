@@ -1,5 +1,6 @@
 package com.desafio.reservas.controllers;
 
+import com.desafio.reservas.dtos.HotelDTO;
 import com.desafio.reservas.dtos.PayloadHotelDTO;
 import com.desafio.reservas.dtos.StatusDTO;
 import com.desafio.reservas.exceptions.HotelException;
@@ -22,6 +23,12 @@ public class HotelController {
     @GetMapping("/hotels")
     public ResponseEntity listHotels(@RequestParam(required = false) Map<String, String> params) throws HotelException {
         return new ResponseEntity(service.listHotelsAvailable(params), HttpStatus.OK);
+    }
+
+    @PostMapping("/hotel")
+    public ResponseEntity addHotel(@RequestBody HotelDTO hotelDTO) throws HotelException {
+        service.addNewHotel(hotelDTO);
+        return new ResponseEntity(new StatusDTO(201, "The new hotel has been added!"), HttpStatus.CREATED);
     }
 
     @PostMapping("/booking")
