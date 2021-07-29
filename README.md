@@ -1,5 +1,9 @@
 "DESAFÍO QUALITY" / Spring Boot and JUnit 5
 
+Actual version (main branch): Persistance in MongoDB
+
+Old version (alternative branch): Persistance in CSV files
+
 This API intends to solve hotel and flight reservations. Both parts are independent. It includes exceptions handlers and unit tests (coverage over 90%).
 
 HOTEL RESERVATION
@@ -43,6 +47,18 @@ HOTEL RESERVATION
     }
 }
 
+4- You can add a new hotel to the system by making a request to (POST) api/v1/hotel. A body object is required, same format as the following example:
+
+{
+        "hotelCode": "HB-0001",
+        "name": "Diplomatic",
+        "city": "Buenos Aires",
+        "roomType": "Single",
+        "price": 6500.0,
+        "availableFrom": "02/10/2021",
+        "availableTo": "15/10/2021",
+}
+
 FLIGHT RESERVATION
 
 1- You can ask for every available flight by making a request to (GET) api/v1/flights
@@ -83,4 +99,16 @@ FLIGHT RESERVATION
             "dues": 6
         }
     }
+}
+
+4- You can add a new flight to the system by making a request to (POST) api/v1/flight. A body object is required, same format as the following example:
+
+{
+    "flightNumber": "BAPI-1235",
+    "origin": "Chile",
+    "destination": "Madrid",
+    "seatType": "Economy",
+    "seatPrice": 70300,
+    "dateFrom": "02/10/2021",
+    "dateTo": "15/10/2021"
 }
